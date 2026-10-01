@@ -1,6 +1,3 @@
-
-
-
 # A one-page cheat-sheet for everything covered in Phase 3 and Phase 4. See each module for full explanations and worked examples.
 
 
