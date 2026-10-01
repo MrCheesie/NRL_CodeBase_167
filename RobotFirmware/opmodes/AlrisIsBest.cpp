@@ -39,8 +39,9 @@ public:
         _oled.print(imu.getHeading(), 1); // 1 decimal place
         _oled.display();
         // push buffer to the screen
-
+        }
     }
+
     void batteryLow() { // checks if battery is low and turns LED red, and sends message to controller
         if (power.isBatteryLow()) {
             userLed.setSolid(255, 0, 0);
