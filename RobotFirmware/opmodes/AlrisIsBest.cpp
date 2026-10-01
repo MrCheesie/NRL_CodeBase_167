@@ -37,8 +37,8 @@ public:
         // send heading to telemetry and also print the numeric value to the OLED
         telemetry.addData("heading", imu.getHeading());
         _oled.print(imu.getHeading(), 1); // 1 decimal place
-        _oled.display();
         // push buffer to the screen
+        _oled.display();
         }
     }
 
