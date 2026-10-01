@@ -1,21 +1,46 @@
 #include "HexaDCMotor.h"
 #include "NRL.h"
 #include "RobotConfig.h"
+#include <HexaOLED.h>
 #include "TankDrive.h"
 
 // Declare your hardware here (file-scope), e.g.:
-// static HexaDCMotor leftMotor {{ .dirPin = MOTOR_L_DIR, .pwmPin = MOTOR_L_PWM }};
-
-
 static HexaDCMotor leftMotor {{ .dirPin = MOTOR_L_DIR, .pwmPin = MOTOR_L_PWM }};
 static HexaDCMotor rightMotor {{ .dirPin = MOTOR_R_DIR, .pwmPin = MOTOR_R_PWM  }};
 static TankDrive drive(leftMotor, rightMotor);
-
-
+static HexaIMU imu{ hexaImuConfig()};
 
 class AlrisIsBest : public NRLOpMode {
+
+// oled variables
+HexaOLED _oled{ hexaOledConfig() };
+bool _oledOk = false;
+
 public:
     // own functions
+
+    void drawOnOLED() {
+        imu.tick(millis());
+        if (!_oledOk) return;
+        // nothing to draw it the OLED didn't start
+        _oled.clearDisplay();
+        // wipe the buffer
+        _oled.setTextSize(1);
+        _oled.setTextColor(HexaOLED::WHITE);
+        _oled.setCursor(0, 0);
+        _oled.print("Alris is the best programmer.");
+        _oled.setCursor(0, 12);
+        if (!imu.isHeadingReady()) {
+        _oled.print("calib...");
+        // hold still until bias calibration finishes
+        } else {
+        // send heading to telemetry and also print the numeric value to the OLED
+        telemetry.addData("heading", imu.getHeading());
+        _oled.print(imu.getHeading(), 1); // 1 decimal place
+        _oled.display();
+        // push buffer to the screen
+
+    }
     void batteryLow() { // checks if battery is low and turns LED red, and sends message to controller
         if (power.isBatteryLow()) {
             userLed.setSolid(255, 0, 0);
@@ -28,6 +53,10 @@ public:
 
     // system functions
     void init() override {
+        _oledOk =_oled.begin();
+        // capture success - don't ignore it
+        // telemetry.addData("oled ok", _oledOk ? 1.0f : 0.0f);
+        imu.begin();
         leftMotor.begin();
         rightMotor.begin();
         // Runs once when INIT is pressed  — begin() your hardware here.
