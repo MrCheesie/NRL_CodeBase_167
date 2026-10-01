@@ -64,6 +64,14 @@ public:
     }
 
     void loop() override {
+        // Runs at 50 Hz until STOP — read gamepad1, drive motors here.
+        //
+        // Control each part in ONE place: loop() or an action, not
+        // both. Actions run before loop() each tick, so loop() would
+        // overwrite them. To share one part, step aside while a
+        // sequence plays:  if (!isActionRunning()) { ... }
+
+
         // driving
         drive.setScale(gamepad1.pressed(BTN_LB) ? 0.35f : 1.0f); // slow while LB held
         drive.drive(gamepad1.leftY(), gamepad1.rightX());
@@ -75,18 +83,12 @@ public:
 
         batteryLow(); // Call battery low function to check if battery is low
 
-        // Runs at 50 Hz until STOP — read gamepad1, drive motors here.
-        //
-        // Control each part in ONE place: loop() or an action, not
-        // both. Actions run before loop() each tick, so loop() would
-        // overwrite them. To share one part, step aside while a
-        // sequence plays:  if (!isActionRunning()) { ... }
     }
 
     void stop() override {
+        // Runs once on STOP — stop your motors/servos here.
         leftMotor.setSpeed(0);
         rightMotor.setSpeed(0);
-        // Runs once on STOP — stop your motors/servos here.
     }
 };
 

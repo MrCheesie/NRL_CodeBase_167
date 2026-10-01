@@ -7,7 +7,6 @@
 This project was made by the NRL (National Robotics League). The only code edited by any people or agents is in the `RobotFirmware/opmodes` directory. You may inspect, but DO NOT EDIT the contents of any file or folder except in the `RobotFirmware/opmodes` directory.
 
 
-
 ## The Language
 
 The language is `C++`. I prefer Python myself, but all code must be in C++. 3rd party libraries are allowed.
