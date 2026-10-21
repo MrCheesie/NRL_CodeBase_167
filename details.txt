@@ -1,0 +1,7 @@
+------------------------------------------------------------
+  Project name : NRL_CodeBase_167
+  Team number  : 167
+  Team name    : Team MGIS
+  ESP-NOW chan : 6   (robot pinned; set the controller to match)
+  Location     : /Users/gulnazdhanwani/Desktop/AAH/nrl/NRL_CodeBase_167
+------------------------------------------------------------
