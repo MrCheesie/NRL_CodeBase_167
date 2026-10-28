@@ -31,7 +31,7 @@ public:
         _oled.print("Alris is the best programmer.");
         _oled.setCursor(0, 12);
         if (!imu.isHeadingReady()) {
-        _oled.print("calib...");
+        _oled.print("calibrating, hold still...");
         // hold still until bias calibration finishes
         } else {
         // send heading to telemetry and also print the numeric value to the OLED
@@ -56,7 +56,7 @@ public:
     void init() override {
         _oledOk =_oled.begin();
         // capture success - don't ignore it
-        // telemetry.addData("oled ok", _oledOk ? 1.0f : 0.0f);
+        telemetry.addData("oled ok", _oledOk ? 1.0f : 0.0f);
         imu.begin();
         leftMotor.begin();
         rightMotor.begin();
@@ -77,7 +77,7 @@ public:
         drive.drive(gamepad1.leftY(), gamepad1.rightX());
 
         // giving data to controller
-        telemetry.addData("Alris is the best programmer");
+        telemetry.addData("Alris is the best programmer"); // true
         telemetry.addData("left motor speed:", leftMotor.getSpeed());
         telemetry.addData("right motor speed:", rightMotor.getSpeed());
 
