@@ -24,12 +24,18 @@ dist/
 
 # Local editor/assistant settings (machine-specific, never commit)
 .claude/settings.local.json
+.opencode/
 .claude/
 .codex/
 .idea/
 .agy/
 .pi/
-.opencode/
+
+.zed/
+.idea/
+.openidea/
+.freebuff/
+.kilo/
 
 # Key material. NEVER commit, encrypted or not.
 #

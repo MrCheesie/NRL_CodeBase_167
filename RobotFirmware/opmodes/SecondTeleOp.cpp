@@ -3,11 +3,13 @@
 
 #include "NRL.h"
 #include <HexaOLED.h>
-#include <iostream>
-
+//#include <iostream>
+#include <NRL.h>
 // my consts
 constexpr float ARM_SERVO_START_ANGLE = 90.0f;
 constexpr float GRIPPER_SERVO_START_ANGLE = 90.0f;
+
+static HexaIMU imu{ HexaIMUConfig() };
 
 // Declare hardware here (file-scope)
 static HexaDCMotor leftMotor {{
@@ -41,6 +43,9 @@ constexpr float GRIPPER_CLOSE_ANGLE = GRIPPER_SERVO_START_ANGLE - 40.0f;
 
 
 class SecondTeleOp : public NRLOpMode {
+    // oled variables
+    HexaOLED _oled{ HexaOLEDConfig() };
+    bool _oledOk = false;
 public:
     // own functions
     void drawOnOLED() {
@@ -84,8 +89,11 @@ public:
             telemetry.addData("arm servo position:", armServo.getPosition());
             telemetry.addData("gripper servo position:", gripServo.getPosition());
         } catch (std::exception e) {
-            telemetry.addData("Error:", e);
-            _oled.print("Error:", e);
+            telemetry.addData(e.what());
+
+            // print separately cause `_oled.print()` sucks
+            _oled.print("error:");
+            _oled.print(e.what());
         }
     }
 
@@ -138,13 +146,13 @@ public:
         // Check whether the controller's D-pad LEFT button was pressed.
         if (gamepad1.pressed(BTN_DPAD_LEFT)) {
 
-            gripperServo.setPosition();  // Command the gripper to open.
+            gripServo.setPosition(GRIPPER_OPEN_ANGLE);  // Command the gripper to open.
         }
 
         // Check whether the controller's D-pad RIGHT button was pressed.
         if (gamepad1.pressed(BTN_DPAD_RIGHT)) {
 
-            gripperServo.setPosition(GRIPPER_CLOSE_ANGLE);  // Command the gripper to close.
+            gripServo.setPosition(GRIPPER_CLOSE_ANGLE);  // Command the gripper to close.
         }
 
         // draw stuff on the OLED
@@ -155,7 +163,6 @@ public:
         batteryLow();
     }
 
-    }
 
     void stop() override {
         // Runs once on STOP — stop your motors/servos here.
