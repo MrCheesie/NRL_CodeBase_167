@@ -7,7 +7,7 @@
 constexpr float ARM_SERVO_START_ANGLE = 90.0f;
 constexpr float GRIPPER_SERVO_START_ANGLE = 90.0f;
 
-static HexaIMU imu{HexaIMUConfig()};
+static HexaIMU imu{hexaImuConfig()}; // IMU on Wire / I2C_SDA(47), I2C_SCL(48)
 
 // Declare hardware here (file-scope)
 static HexaDCMotor leftMotor{{.dirPin = MOTOR_L_DIR, .pwmPin = MOTOR_L_PWM}};
@@ -23,20 +23,22 @@ static HexaServo gripServo{{.signalPin = SERVO_2,
 
 static TankDrive drive{leftMotor, rightMotor};
 
-constexpr float ARM_UP_ANGLE = ARM_SERVO_START_ANGLE + 90.0f;
-constexpr float ARM_DOWN_ANGLE = ARM_SERVO_START_ANGLE - 90.0f;
-constexpr float GRIPPER_OPEN_ANGLE = GRIPPER_SERVO_START_ANGLE + 40.0f;
-constexpr float GRIPPER_CLOSE_ANGLE = GRIPPER_SERVO_START_ANGLE - 40.0f;
+constexpr float ARM_UP_ANGLE = ARM_SERVO_START_ANGLE - 90.0f;
+constexpr float ARM_DOWN_ANGLE = ARM_SERVO_START_ANGLE + 90.0f;
+constexpr float GRIPPER_OPEN_ANGLE = GRIPPER_SERVO_START_ANGLE - 40.0f;
+constexpr float GRIPPER_CLOSE_ANGLE = GRIPPER_SERVO_START_ANGLE + 40.0f;
 
 class SecondTeleOp : public NRLOpMode {
   // oled variables
-  HexaOLED _oled{HexaOLEDConfig()};
+  HexaOLED _oled{hexaOledConfig()}; // OLED on Wire1 / OLED_SDA(6), OLED_SCL(7)
   bool _oledOk = false;
 
 public:
   // own functions
   void drawOnOLED() {
     imu.tick(millis());
+    // send heading regardless of whether the OLED started
+    telemetry.addData("heading", imu.getHeading());
     if (!_oledOk)
       return;
     // nothing to draw it the OLED didn't start
@@ -47,26 +49,27 @@ public:
     _oled.setCursor(0, 0);
     _oled.print("Alris is the best programmer.");
     _oled.setCursor(0, 12);
+    _oled.print("TEAM MGIS");
+    _oled.setCursor(0, 24);
     if (!imu.isHeadingReady()) {
       _oled.print("calibrating, hold still...");
       // hold still until bias calibration finishes
     } else {
-      // send heading to telemetry and also print the numeric value to the OLED
-      telemetry.addData("heading", imu.getHeading());
-      _oled.print(imu.getHeading(), 1); // 1 decimal place
-      // push buffer to the screen
-      _oled.display();
+      // print the numeric value to the OLED (1 decimal place)
+      _oled.print(imu.getHeading(), 1);
     }
+    // push buffer to the screen (always, even during calibration)
+    _oled.display();
   }
 
   void batteryLow() { // checks if battery is low and turns LED red, and sends
                       // message to controller
     if (power.isBatteryLow()) {
       userLed.setSolid(255, 0, 0);
-      telemetry.addData("Battery Low:", "true");
+      telemetry.addData("Battery Low", "true");
     } else {
       userLed.setSolid(0, 0, 255);
-      telemetry.addData("Battery Low:", "false");
+      telemetry.addData("Battery Low", "false");
     }
   }
 
@@ -74,12 +77,12 @@ public:
 
     // removed try/catch block
     telemetry.addData("Alris is the ", "best programmer"); // true
-    telemetry.addData("l motor speed: ",
+    telemetry.addData("l motor spd",
                       static_cast<float>(leftMotor.getSpeed()));
-    telemetry.addData("r motor speed: ",
+    telemetry.addData("r motor spd",
                       static_cast<float>(rightMotor.getSpeed()));
-    telemetry.addData("arm servo pos: ", armServo.getPosition());
-    telemetry.addData("grip servo pos: ", gripServo.getPosition());
+    telemetry.addData("arm servo", armServo.getPosition());
+    telemetry.addData("grip servo", gripServo.getPosition());
   }
 
   // sys functions
@@ -88,10 +91,13 @@ public:
     _oledOk = _oled.begin();
     // capture success - don't ignore it
     telemetry.addData("oled ok", _oledOk ? 1.0f : 0.0f);
-    imu.begin();
+    if (!imu.begin())
+      telemetry.addData("imu begin", "failed");
     // motors
     leftMotor.begin();
+    leftMotor.setFlipped(true);
     rightMotor.begin();
+    rightMotor.setFlipped(true);
 
     // servos
     armServo.begin();
@@ -112,9 +118,9 @@ public:
     ==============
     */
 
-    drive.drive(gamepad1.leftY(), gamepad1.rightX());
-    drive.setScale(gamepad1.pressed(BTN_LB) ? 0.35f
-                                            : 1.0f); // slow while LB held
+    // slow while LB held (set scale BEFORE drive so it applies this tick)
+    drive.setScale(gamepad1.pressed(BTN_LB) ? 0.35f : 1.0f);
+    drive.drive(gamepad1.rightX(), gamepad1.leftY());
 
     // Check whether the controller's D-pad UP button was pressed.
     if (gamepad1.pressed(BTN_DPAD_UP)) {
