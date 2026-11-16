@@ -2,6 +2,7 @@
 // UPLOAD THIS TO THE BOT
 
 #include "NRL.h"
+#include "NRLGamepad.h"
 
 // my consts
 constexpr float ARM_SERVO_START_ANGLE = 90.0f;
@@ -119,7 +120,7 @@ public:
     */
 
     // slow while LB held (set scale BEFORE drive so it applies this tick)
-    drive.setScale(gamepad1.pressed(BTN_LB) ? 0.35f : 1.0f);
+    drive.setScale(gamepad1.pressed(BTN_DPAD_LEFT) ? 0.35f : 1.0f);
     drive.drive(gamepad1.rightX(), gamepad1.leftY());
 
     // Check whether the controller's D-pad UP button was pressed.
@@ -137,13 +138,13 @@ public:
     }
 
     // Check whether the controller's D-pad LEFT button was pressed.
-    if (gamepad1.pressed(BTN_DPAD_LEFT)) {
+    if (gamepad1.pressed(BTN_LB)) {
 
       gripServo.setPosition(GRIPPER_OPEN_ANGLE); // Command the gripper to open.
     }
 
     // Check whether the controller's D-pad RIGHT button was pressed.
-    if (gamepad1.pressed(BTN_DPAD_RIGHT)) {
+    if (gamepad1.pressed(BTN_LB)) {
 
       gripServo.setPosition(
           GRIPPER_CLOSE_ANGLE); // Command the gripper to close.
