@@ -119,7 +119,7 @@ public:
     ==============
     */
 
-    // slow while LB held (set scale BEFORE drive so it applies this tick)
+    // slow while DPAD LEFT held (set scale BEFORE drive so it applies this tick)
     drive.setScale(gamepad1.pressed(BTN_DPAD_LEFT) ? 0.35f : 1.0f);
     drive.drive(gamepad1.rightX(), gamepad1.leftY());
 
