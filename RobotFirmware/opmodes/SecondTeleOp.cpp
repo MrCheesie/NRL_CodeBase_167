@@ -1,5 +1,3 @@
-// THIS IS THE CODE TO USE IN PRODUCTION
-// UPLOAD THIS TO THE BOT
 
 #include "NRL.h"
 #include "NRLGamepad.h"
